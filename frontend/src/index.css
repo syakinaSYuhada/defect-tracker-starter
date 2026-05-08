@@ -1,0 +1,20 @@
+:root{
+  --bg:#f7f8fb;
+  --card:#ffffff;
+  --accent:#2563eb;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, Arial, sans-serif; background:var(--bg); margin:0; color:#111}
+nav a{color:var(--accent); text-decoration:none}
+.container{max-width:1000px;margin:28px auto;padding:18px;background:var(--card);box-shadow:0 1px 4px rgba(16,24,40,0.06);border-radius:8px}
+h1,h2{margin:0 0 12px}
+label{font-weight:600;color:var(--muted)}
+input,textarea,select{width:100%;padding:8px 10px;margin-top:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px}
+button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+button[disabled]{opacity:0.6;cursor:not-allowed}
+.error{color:#b91c1c;margin-top:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #eef2f7}
+.topbar{padding:10px;background:#fff;border-bottom:1px solid #eef2f7}
+.small{font-size:13px;color:var(--muted)}
