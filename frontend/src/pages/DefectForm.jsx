@@ -49,6 +49,7 @@ export default function DefectForm(){
   }
 
   return (
+    <>
     <div className="container">
       <h2>Create Defect</h2>
       <form onSubmit={submit} noValidate>
@@ -94,5 +95,6 @@ export default function DefectForm(){
         </div>
       </div>
     )}
+    </>
   )
 }

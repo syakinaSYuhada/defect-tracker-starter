@@ -21,6 +21,9 @@ exports.uploadFile = async (req, res) => {
   const filename = `${Date.now()}_${file.originalname.replace(/\s+/g, '_')}`;
   const defectId = req.body.defect_id ? Number(req.body.defect_id) : null;
   const actionId = req.body.action_id ? Number(req.body.action_id) : null;
+  
+    // Validate: require either defect_id or action_id to link attachment
+    if (!defectId && !actionId) return res.status(400).json({ error: 'Must provide defect_id or action_id' });
 
   try {
     // Validate defect_id or action_id if provided
@@ -52,7 +55,9 @@ exports.uploadFile = async (req, res) => {
 
     return res.status(201).json({ attachment, url: publicUrl });
   } catch (err) {
-    console.error(err);
+      console.error('Upload controller error:', err && err.message ? err.message : err);
+      // If it's a validation-like error, surface 400
+      if (err && err.message && err.message.toLowerCase().includes('invalid')) return res.status(400).json({ error: err.message });
     return res.status(500).json({ error: 'Server error' });
   }
 };

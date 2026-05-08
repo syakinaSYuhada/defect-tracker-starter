@@ -29,4 +29,21 @@ app.use('/api/uploads', uploadRoutes);
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
+// Generic error handler - return JSON for errors (including Multer errors)
+app.use((err, req, res, next) => {
+	console.error('Unhandled error:', err && err.message ? err.message : err);
+	if (err && err.code && (err.code === 'LIMIT_FILE_SIZE' || err.code === 'LIMIT_FILE_COUNT' || err.code === 'LIMIT_UNEXPECTED_FILE')) {
+		return res.status(400).json({ error: err.message || 'File upload error' });
+	}
+	if (err && err.message && err.message.toLowerCase().includes('invalid file type')) {
+		return res.status(400).json({ error: 'Invalid file type' });
+	}
+	if (err && err.name === 'MulterError') {
+		return res.status(400).json({ error: err.message });
+	}
+	const status = err && err.status && Number(err.status) ? Number(err.status) : 500;
+	const message = err && err.message ? err.message : 'Server error';
+	res.status(status).json({ error: message });
+});
+
 module.exports = app;
