@@ -58,6 +58,15 @@ CREATE TABLE IF NOT EXISTS attachments (
   uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
+-- Comments for defects
+CREATE TABLE IF NOT EXISTS comments (
+  id SERIAL PRIMARY KEY,
+  defect_id INTEGER REFERENCES defects(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  text TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
 -- Activity logs
 CREATE TABLE IF NOT EXISTS activity_logs (
   id SERIAL PRIMARY KEY,
@@ -73,5 +82,6 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 CREATE INDEX IF NOT EXISTS idx_defects_created_at ON defects(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_actions_due_date ON corrective_actions(due_date);
 CREATE INDEX IF NOT EXISTS idx_attachments_defect_id ON attachments(defect_id);
+CREATE INDEX IF NOT EXISTS idx_comments_defect_id ON comments(defect_id);
 
 -- Sample admin insertion is handled by scripts/create_admin.js

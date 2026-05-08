@@ -61,3 +61,46 @@ exports.uploadFile = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
+  // List attachments for a given defect id
+  exports.listByDefect = async (req, res) => {
+    const defectId = Number(req.params.id);
+    if (!defectId) return res.status(400).json({ error: 'Invalid defect id' });
+    try {
+      const { rows } = await db.query('SELECT a.*, u.email as uploaded_by_email FROM attachments a LEFT JOIN users u ON u.id = a.uploaded_by WHERE a.defect_id=$1 ORDER BY a.uploaded_at DESC', [defectId]);
+      const items = rows.map(r => {
+        const url = supabase ? supabase.storage.from(BUCKET).getPublicUrl(r.path).data.publicUrl : null;
+        return Object.assign({}, r, { url });
+      });
+      return res.json(items);
+    } catch (err) {
+      console.error('List attachments error:', err && err.message ? err.message : err);
+      return res.status(500).json({ error: 'Server error' });
+    }
+  };
+
+  // Delete an attachment by id — only uploader or admin
+  exports.deleteAttachment = async (req, res) => {
+    if (!req.user || !req.user.id) return res.status(401).json({ error: 'Unauthorized' });
+    const id = Number(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid attachment id' });
+    try {
+      const { rows } = await db.query('SELECT * FROM attachments WHERE id=$1', [id]);
+      if (!rows.length) return res.status(404).json({ error: 'Attachment not found' });
+      const attachment = rows[0];
+      if (Number(req.user.id) !== Number(attachment.uploaded_by) && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+
+      if (supabase) {
+        const { error } = await supabase.storage.from(BUCKET).remove([attachment.path]);
+        if (error) console.warn('Supabase remove warning:', error.message || error);
+      }
+
+      await db.query('DELETE FROM attachments WHERE id=$1', [id]);
+      return res.json({ success: true });
+    } catch (err) {
+      console.error('Delete attachment error:', err && err.message ? err.message : err);
+      return res.status(500).json({ error: 'Server error' });
+    }
+  };

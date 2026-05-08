@@ -17,7 +17,7 @@ export default function DefectList(){
         <tbody>
           {defects.map(d=> (
             <tr key={d.id}>
-              <td>{d.id}</td>
+              <td><Link to={`/defects/${d.id}`}>{d.id}</Link></td>
               <td>{d.batch_number}</td>
               <td>{d.severity}</td>
               <td>{d.description}</td>

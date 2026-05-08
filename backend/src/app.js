@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes');
 const defectRoutes = require('./routes/defectRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => res.json({ ok: true, time: new Date() }));
 app.use('/api/auth', authRoutes);
 app.use('/api/defects', defectRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/comments', commentRoutes);
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

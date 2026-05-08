@@ -30,4 +30,10 @@ const uploadLimiter = rateLimit({
 
 router.post('/', auth, uploadLimiter, upload.single('file'), uploadController.uploadFile);
 
+// List attachments for a defect
+router.get('/defect/:id', auth, uploadController.listByDefect);
+
+// Delete an attachment (uploader or admin)
+router.delete('/:id', auth, uploadController.deleteAttachment);
+
 module.exports = router;

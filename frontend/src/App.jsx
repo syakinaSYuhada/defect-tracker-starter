@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import DefectList from './pages/DefectList'
 import DefectForm from './pages/DefectForm'
+import DefectDetail from './pages/DefectDetail'
 import { setAuthToken } from './services/api'
 
 function AppShell(){
@@ -29,6 +30,7 @@ function AppShell(){
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/defects" element={<DefectList/>} />
         <Route path="/defects/new" element={<DefectForm/>} />
+        <Route path="/defects/:id" element={<DefectDetail/>} />
         <Route path="/" element={<Dashboard/>} />
       </Routes>
     </div>
