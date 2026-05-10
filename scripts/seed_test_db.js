@@ -17,6 +17,9 @@ async function seed() {
     await db.query("INSERT INTO severity_levels(id, name) VALUES (1, 'low') ON CONFLICT (name) DO NOTHING");
     await db.query("INSERT INTO severity_levels(id, name) VALUES (2, 'high') ON CONFLICT (name) DO NOTHING");
 
+    // defect types
+    await db.query("INSERT INTO defect_types(id, name) VALUES (1, 'general') ON CONFLICT (name) DO NOTHING");
+
     // defects deterministic
     await db.query("INSERT INTO defects(id, title, description, product_id, severity_id, status_id, reported_by, created_at) VALUES (1, 'TEST-DEFECT-001', 'Seed defect for tests', 1, 1, 1, 1, NOW()) ON CONFLICT (id) DO NOTHING");
 
