@@ -27,7 +27,9 @@ jobs:
     env:
       NODE_ENV: test
       JWT_SECRET: test_secret
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/defecttracker_test
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/defecttracker_test
+      
+      
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -46,8 +48,8 @@ jobs:
         run: |
           sudo apt-get update >/dev/null
           sudo apt-get install -y postgresql-client >/dev/null
-          for i in $(seq 1 60); do
-            if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
+          for i in $(seq 1 30); do
+            if pg_isready -h postgres -p 5432 -U postgres >/dev/null 2>&1; then
               echo "Postgres is available"; exit 0
             fi
             sleep 1
