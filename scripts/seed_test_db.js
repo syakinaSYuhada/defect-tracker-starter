@@ -3,8 +3,8 @@ const db = require('../src/config/db');
 async function seed() {
   try {
     // deterministic users
-    await db.query("INSERT INTO users(id, email, role) VALUES (1, 'test-user@example.com', 'admin') ON CONFLICT (email) DO NOTHING");
-    await db.query("INSERT INTO users(id, email, role) VALUES (2, 'tester@example.com', 'operator') ON CONFLICT (email) DO NOTHING");
+    await db.query("INSERT INTO users(id, email, name, role) VALUES (1, 'test-user@example.com', 'Admin User', 'admin') ON CONFLICT (email) DO NOTHING");
+    await db.query("INSERT INTO users(id, email, name, role) VALUES (2, 'tester@example.com', 'Operator User', 'operator') ON CONFLICT (email) DO NOTHING");
 
     // statuses
     await db.query("INSERT INTO statuses(id, name) VALUES (1, 'open') ON CONFLICT (name) DO NOTHING");
@@ -19,6 +19,11 @@ async function seed() {
 
     // defect types
     await db.query("INSERT INTO defect_types(id, name) VALUES (1, 'general') ON CONFLICT (name) DO NOTHING");
+
+    // products, categories, lines
+    await db.query("INSERT INTO products(id, name) VALUES (1, 'Product A') ON CONFLICT (name) DO NOTHING");
+    await db.query("INSERT INTO defect_categories(id, name) VALUES (1, 'general') ON CONFLICT (name) DO NOTHING");
+    await db.query("INSERT INTO production_lines(id, name) VALUES (1, 'Line 1') ON CONFLICT (name) DO NOTHING");
 
     // defects deterministic
     await db.query("INSERT INTO defects(id, title, description, product_id, severity_id, status_id, reported_by, created_at) VALUES (1, 'TEST-DEFECT-001', 'Seed defect for tests', 1, 1, 1, 1, NOW()) ON CONFLICT (id) DO NOTHING");
