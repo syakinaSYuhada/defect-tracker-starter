@@ -64,10 +64,12 @@ jobs:
             echo "$POSTGRES_IP postgres" | sudo tee -a /etc/hosts
             echo "POSTGRES_HOST=postgres" >> $GITHUB_ENV
             echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/defecttracker_test" >> $GITHUB_ENV
+            export POSTGRES_HOST=postgres
           else
             echo "No Postgres container found; will attempt to use hostname 'postgres'"
             echo "POSTGRES_HOST=postgres" >> $GITHUB_ENV
             echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/defecttracker_test" >> $GITHUB_ENV
+            export POSTGRES_HOST=postgres
           fi
           echo "Attempting pg_isready checks (will try 60 times):"
           for i in $(seq 1 60); do
