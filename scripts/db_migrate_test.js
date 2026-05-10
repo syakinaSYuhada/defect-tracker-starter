@@ -24,7 +24,14 @@ async function run() {
     const sqlPath = path.join(__dirname, '..', 'db', 'schema-test.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
     console.log('Running test schema SQL...');
-    await db.pool.query(sql);
+    // Split SQL file into individual statements and execute sequentially to avoid multi-statement parsing issues
+    const statements = sql
+      .split(/;\s*\n/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+    for (const stmt of statements) {
+      await db.pool.query(stmt);
+    }
     console.log('Test schema applied');
     process.exit(0);
   } catch (err) {
