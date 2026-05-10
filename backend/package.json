@@ -1,5 +1,5 @@
 {
-  "name": "defect-tracker-backend",
+  "name": "defect-tracker-backend-backend",
   "version": "0.1.0",
   "main": "server.js",
   "scripts": {
