@@ -1,0 +1,61 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: defecttracker_test
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: test
+      JWT_SECRET: test_secret
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/defecttracker_test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Wait for Postgres
+        run: |
+          for i in $(seq 1 30); do
+            if (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1; then
+              echo "Postgres is available"; exit 0
+            fi
+            sleep 1
+          done
+          echo "Postgres did not become available"; exit 1
+
+      - name: Run Test Schema (migrate)
+        run: npm run db:migrate:test
+
+      - name: Seed Test Database
+        run: npm run db:seed:test
+
+      - name: Run Tests
+        run: npm run test:ci
