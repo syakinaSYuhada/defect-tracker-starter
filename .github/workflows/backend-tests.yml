@@ -28,8 +28,6 @@ jobs:
       NODE_ENV: test
       JWT_SECRET: test_secret
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/defecttracker_test
-      SUPABASE_URL: https://example.supabase.test
-      SUPABASE_KEY: test_key
       
       
     steps:
