@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 );
 
 -- Minimal dashboard view expected by tests
-CREATE VIEW IF NOT EXISTS v_dashboard_kpis AS
+CREATE OR REPLACE VIEW v_dashboard_kpis AS
 SELECT
   (SELECT COUNT(*) FROM defects WHERE deleted_at IS NULL) AS total_defects,
   (SELECT COUNT(*) FROM defects WHERE deleted_at IS NULL AND status_id IS NOT NULL) AS active_defects,
