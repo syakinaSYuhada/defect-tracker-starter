@@ -44,25 +44,40 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Wait for Postgres (with diagnostics)
+      - name: Wait for Postgres (resolve container IP and check)
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client dnsutils
-          echo "Resolve postgres via /etc/hosts and DNS:"
+          echo "Trying to resolve 'postgres' via DNS and /etc/hosts"
           getent hosts postgres || true
           cat /etc/hosts | grep -E "postgres" || true
-          echo "Check network reachability (ping may be blocked but helps debug DNS):"
-          ping -c 1 -W 1 postgres || true
+          echo "If DNS fails, locate the Postgres service container and use its IP"
+          CONTAINER=$(docker ps --filter "ancestor=postgres:16" --format '{{.ID}}' | head -n1)
+          if [ -z "$CONTAINER" ]; then
+            echo "No direct container found by ancestor filter; trying name filter"
+            CONTAINER=$(docker ps --format '{{.ID}} {{.Names}}' | grep postgres || true | awk '{print $1}' | head -n1)
+          fi
+          echo "Detected container id: $CONTAINER"
+          if [ -n "$CONTAINER" ]; then
+            POSTGRES_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER)
+            echo "Postgres container IP: $POSTGRES_IP"
+            echo "POSTGRES_HOST=$POSTGRES_IP" >> $GITHUB_ENV
+            echo "DATABASE_URL=postgres://postgres:postgres@$POSTGRES_IP:5432/defecttracker_test" >> $GITHUB_ENV
+          else
+            echo "No Postgres container found; will attempt to use hostname 'postgres'"
+            echo "POSTGRES_HOST=postgres" >> $GITHUB_ENV
+            echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/defecttracker_test" >> $GITHUB_ENV
+          fi
           echo "Attempting pg_isready checks (will try 60 times):"
           for i in $(seq 1 60); do
             echo "Attempt $i: $(date -u +%T)"
-            if pg_isready -h postgres -p 5432 -U postgres >/dev/null 2>&1; then
-              echo "Postgres is available"; exit 0
+            if pg_isready -h "$POSTGRES_HOST" -p 5432 -U postgres >/dev/null 2>&1; then
+              echo "Postgres is available at $POSTGRES_HOST"; exit 0
             fi
             sleep 1
           done
           echo "Last pg_isready debug output:" 
-          pg_isready -h postgres -p 5432 -U postgres || true
+          pg_isready -h "$POSTGRES_HOST" -p 5432 -U postgres || true
           echo "Postgres did not become available"; exit 1
 
       - name: Run Test Schema (migrate)
