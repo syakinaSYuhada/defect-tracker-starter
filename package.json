@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "main": "server.js",
   "scripts": {
-    "postinstall": "node scripts/setup-zod-shim.js",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "create-admin": "node scripts/create_admin.js",
@@ -20,7 +19,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "@supabase/supabase-js": "^2.78.0",
-    "zod": "^4.30.0",
+    "zod": "^3.23.8",
     "express-rate-limit": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
