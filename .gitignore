@@ -1,23 +1,28 @@
-node_modules
+﻿node_modules/
 .env
-uploads
-.DS_Store
-npm-debug.log
-# Ignore binaries and temp files
-*.bin
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+dist/
+build/
+coverage/
+test-results.txt
 *.log
-
-# Local envs
-frontend/.env.local
-backend/.env
-
-# Temp test artifacts
-temp_test.png
-backend/temp_test.png
-backend/small.jpg
-backend/large.bin
-backend/bad.bin
-
-# OS files
+*.tgz
+*.zip
+*.tar
+*.jpg
+*.png
+*.gif
+*.bin
+bad.bin
+large.bin
+temp_*
 .vscode/
 .idea/
+/.DS_Store
+uploads
