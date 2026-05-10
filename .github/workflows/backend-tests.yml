@@ -44,16 +44,25 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Wait for Postgres
+      - name: Wait for Postgres (with diagnostics)
         run: |
-          sudo apt-get update >/dev/null
-          sudo apt-get install -y postgresql-client >/dev/null
-          for i in $(seq 1 30); do
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client dnsutils
+          echo "Resolve postgres via /etc/hosts and DNS:"
+          getent hosts postgres || true
+          cat /etc/hosts | grep -E "postgres" || true
+          echo "Check network reachability (ping may be blocked but helps debug DNS):"
+          ping -c 1 -W 1 postgres || true
+          echo "Attempting pg_isready checks (will try 60 times):"
+          for i in $(seq 1 60); do
+            echo "Attempt $i: $(date -u +%T)"
             if pg_isready -h postgres -p 5432 -U postgres >/dev/null 2>&1; then
               echo "Postgres is available"; exit 0
             fi
             sleep 1
           done
+          echo "Last pg_isready debug output:" 
+          pg_isready -h postgres -p 5432 -U postgres || true
           echo "Postgres did not become available"; exit 1
 
       - name: Run Test Schema (migrate)
