@@ -9,7 +9,28 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.warn('Supabase service not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE (or SUPABASE_KEY) in .env');
 }
 
-const supabase = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let supabase = null;
+if (SUPABASE_URL && SUPABASE_KEY) {
+  try {
+    // For Node < 22, provide a ws transport to the realtime client to avoid native WebSocket requirement
+    let transport = undefined;
+    try {
+      // prefer a lightweight ws implementation if available
+      // eslint-disable-next-line global-require
+      const ws = require('ws');
+      transport = ws;
+    } catch (e) {
+      // ws not installed; realtime may fail on older Node versions
+      transport = undefined;
+    }
+
+    const opts = transport ? { realtime: { transport } } : {};
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, opts);
+  } catch (err) {
+    console.warn('Failed to initialize Supabase client in CI; continuing without Supabase:', err && err.message ? err.message : err);
+    supabase = null;
+  }
+}
 
 module.exports = {
   supabase,

@@ -10,6 +10,8 @@ async function seed() {
     await db.query("INSERT INTO statuses(id, name) VALUES (1, 'open') ON CONFLICT (name) DO NOTHING");
     await db.query("INSERT INTO statuses(id, name) VALUES (2, 'in_progress') ON CONFLICT (name) DO NOTHING");
     await db.query("INSERT INTO statuses(id, name) VALUES (3, 'closed') ON CONFLICT (name) DO NOTHING");
+    // ensure tests that reference status 9999 have a row
+    await db.query("INSERT INTO statuses(id, name) VALUES (9999, 'test-9999') ON CONFLICT (id) DO NOTHING");
 
     // severity levels
     await db.query("INSERT INTO severity_levels(id, name) VALUES (1, 'low') ON CONFLICT (name) DO NOTHING");

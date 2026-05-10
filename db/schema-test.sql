@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS defects (
   reported_source TEXT,
   defect_location TEXT,
   occurrence_count INTEGER DEFAULT 1,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS comments (
@@ -86,4 +87,11 @@ CREATE TABLE IF NOT EXISTS activity_logs (
   notes TEXT,
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Minimal dashboard view expected by tests
+CREATE VIEW IF NOT EXISTS v_dashboard_kpis AS
+SELECT
+  (SELECT COUNT(*) FROM defects WHERE deleted_at IS NULL) AS total_defects,
+  (SELECT COUNT(*) FROM defects WHERE deleted_at IS NULL AND status_id IS NOT NULL) AS active_defects,
+  NOW()::date AS snapshot_date;
 
