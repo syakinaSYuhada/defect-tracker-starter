@@ -201,7 +201,11 @@ exports.createDefect = async (req, res) => {
     return success(res, defect);
   } catch (err) {
     await client.query('ROLLBACK');
+    // Handle foreign-key violations as client errors
     console.error('Create defect transaction error:', err);
+    if (err && err.code === '23503') {
+      return fail(res, 400, 'Invalid foreign key');
+    }
     return fail(res, 500, 'Server error');
   } finally {
     client.release();
@@ -274,7 +278,7 @@ exports.deleteDefect = async (req, res) => {
   if (!id) return fail(res, 400, 'Invalid id');
   try {
     const { rows } = await db.query('SELECT id FROM defects WHERE id=$1 AND deleted_at IS NULL', [id]);
-    if (!rows.length) return fail(res, 404, 'Not found');
+    if (!rows.length) return success(res, { message: 'Defect already deleted', id });
     await db.query('UPDATE defects SET deleted_at = NOW() WHERE id=$1', [id]);
     await db.query('INSERT INTO activity_logs(user_id, action, target_type, target_id, notes, timestamp) VALUES($1,$2,$3,$4,$5,NOW())', [(req.user && req.user.id) ? req.user.id : null, 'DELETE_DEFECT', 'defect', id, null]);
     return success(res, { id });
